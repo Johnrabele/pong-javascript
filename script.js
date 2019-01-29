@@ -117,42 +117,37 @@ function draw() {
   raf = window.requestAnimationFrame(draw);
   
   drawUserPaddle(user);
-  user.x;
-  user.y;
-
   drawComputerPaddle(computer);
-computer.x;
-computer.y;
   drawScore(user.score, canvas.width/4, canvas.height/4);
 
   drawScore(computer.score, 3 * canvas.width/4, canvas.height/4);
 
-//computer AI:
-computer.y += ((ball.y - (computer.y + computer.height/2))) * 0.1;
+  //computer AI:
+  computer.y += ((ball.y - (computer.y + computer.height/2))) * 0.1;
   
-if (ball.y + ball.radius + ball.vy > canvas.height || ball.y - ball.radius + ball.vy < 0) {
+  if (ball.y + ball.radius + ball.vy > canvas.height || ball.y - ball.radius + ball.vy < 0) {
     ball.vy = -ball.vy;
-}
+  }
 
-if (hitDetectionUser(ball, user)) {
-  let hitPoint = ball.y - player.y + player.height/2;
+  if (hitDetectionUser(ball, user)) {
+    let hitPoint = ball.y - player.y + player.height/2;
 
-  hitPoint = hitPoint / player.height/2;
+    hitPoint = hitPoint / player.height/2;
 
-  let angle45 = Math.PI/4 * hitPoint;
+    let angle45 = Math.PI/4 * hitPoint;
 
-  let direction = ball.x + ball.radius < canvas.width/2 ? 1 : -1;
+    let direction = ball.x + ball.radius < canvas.width/2 ? 1 : -1;
 
-  ball.vx = direction * ball.speed * Math.cos(angle45);
-  ball.vy = ball.speed * Math.sin(angle45);
+    ball.vx = direction * ball.speed * Math.cos(angle45);
+    ball.vy = ball.speed * Math.sin(angle45);
 
-  ball.speed += 0.5;
+    ball.speed += 0.5;
 
-  console.log("User hit detected");
-  
+    console.log("User hit detected");
+    
 
-  console.log(ball.x + ball.radius < canvas.width/2)
-}
+    console.log(ball.x + ball.radius < canvas.width/2)
+  }
 
 if (hitDetectionComputer(ball, computer)) {
   let hitPoint = ball.y - player.y + player.height/2;
@@ -198,12 +193,8 @@ canvas.addEventListener('mouseout', function() {
 
 canvas.addEventListener('mousemove', mousePosition);
 
-  function newFunction() {
-    return true;
-  }
 
 function mousePosition(event) {
   let rectangle = canvas.getBoundingClientRect();
-
   user.y = event.clientY - rectangle.top - user.height/2;
 }
