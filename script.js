@@ -5,7 +5,7 @@ const context = canvas.getContext('2d');
 
 //objects:
 const net = {
-    x: (canvas.width - 2)/2,
+    x: (canvas.width)/2,
     y: 0,
     width: 2,
     height: 10,
@@ -13,35 +13,50 @@ const net = {
 }
 
 const ball = {
-    x: 100,
-    y: 100,
-    vx: 3,
-    vy: 3,
+    x: canvas.width/2,
+    y: canvas.height/2,
+    vx: 5,
+    vy: 5,
     radius: 5,
-    speed: 7,
+    speed: 20,
     color: 'white',
-    };
+    }
 
 const user = {
-    x: 0,
-    y: 150,
+    x: 0, 
+    y: (canvas.height - 100) / 2,
     width: 20,
     height: 100,
     color: 'white',
-    score: 0
-    };
+    score: 0,
+    }
 
 const computer = {
-   x: 580,
-   y: 150,
+   x: canvas.width - 20,
+   y: (canvas.height - 100) / 2,
    width: 20,
    height: 100,
    color: 'white',
    score: 0
     }
 
+let player = (ball.x + ball.radius < canvas.width/2) ? user : computer;
+
 //functions:
-function drawRect(x, y, w, h, color){
+
+function resetBall() {
+  ball.x = canvas.width/2;
+  ball.y = canvas.height/2;
+  ball.vx = 5;
+}
+
+function drawScore(newScore, x, y) {
+  context.fillStyle = 'white';
+  context.font = '70px arial';
+  context.fillText(newScore, x, y);
+}
+
+function drawRect(x, y, w, h, color) {
   context.fillStyle = color;
   context.fillRect(x, y, w, h);
 }
@@ -58,7 +73,7 @@ const drawBall = function(ball) {
   context.closePath();
   context.fillStyle = ball.color;
   context.fill();
-      }
+}
 
 const drawUserPaddle = function(user) {
   context.beginPath();
@@ -75,33 +90,25 @@ const drawComputerPaddle = function(computer) {
   context.fillStyle = computer.color;
   context.fill();
 }
-const hitDetection = (ball, user) => {
-  user.x < (ball.x + ball.radius) &&
+
+const hitDetectionUser = (ball, user) => {
+  return user.x < (ball.x + ball.radius) &&
   user.y < (ball.y + ball.radius) &&
   (user.x + user.width) > ball.x - ball.radius &&
-  (user.y + user.height) > (ball.y - ball.radius)
-
-  return (
-    user.left < ball.right &&
-    user.top < ball.bottom &&
-    user.right > ball.left &&
-    user.bottom > ball.top
-  ) 
+  (user.y + user.height) > ball.y - ball.radius
 }
 
-hitDetection(ball, user);
-
-const ballVx = () => {
-  ball.vx -= ball.vx;
+const hitDetectionComputer = (ball, computer) => {
+  return computer.x < (ball.x + ball.radius) &&
+  computer.y < (ball.y + ball.radius) &&
+  (computer.x + computer.width) > ball.x - ball.radius &&
+  (computer.y + computer.height) > ball.y - ball.radius
 }
 
-const ballVy = () => {
-  ball.vy -= ballvy;
-}
-
+//rendering:
 function draw() {
   context.clearRect(0,0, canvas.width, canvas.height);
-  
+
   drawNet();
   
   drawBall(ball);
@@ -114,35 +121,73 @@ function draw() {
   user.y;
 
   drawComputerPaddle(computer);
-  computer.x;
-  computer.y;
+computer.x;
+computer.y;
+  drawScore(user.score, canvas.width/4, canvas.height/4);
+
+  drawScore(computer.score, 3 * canvas.width/4, canvas.height/4);
+
+//computer AI:
+computer.y += ((ball.y - (computer.y + computer.height/2))) * 0.1;
   
-  if (ball.y + ball.radius + ball.vy > canvas.height || ball.y - ball.radius + ball.vy < 0) {
+if (ball.y + ball.radius + ball.vy > canvas.height || ball.y - ball.radius + ball.vy < 0) {
     ball.vy = -ball.vy;
-  }
-  if (ball.x + ball.radius + ball.vx > canvas.width || ball.x - ball.radius + ball.vx < 0) {
-    ball.vx = -ball.vx;
-  }
-
-  if (hitDetection(ball, user) === true) {
-    ballVy();
-    ballVx();
-  }
-
-  if (hitDetection()) {
-    console.log("Hit detected");
-    ballVy();
-    ballVx();
- }
-//attempt at controlling user/computer paddle boundries.
-  if (user.height + user.width > canvas.height || user.height + user.width < 0) {
-    user.height -= user.height;
-  }
-  
-  if (computer.height < 0 || computer.height > 400) {
-    computer.height -= computer.height;
-  }
 }
+
+if (hitDetectionUser(ball, user)) {
+  let hitPoint = ball.y - player.y + player.height/2;
+
+  hitPoint = hitPoint / player.height/2;
+
+  let angle45 = Math.PI/4 * hitPoint;
+
+  let direction = ball.x + ball.radius < canvas.width/2 ? 1 : -1;
+
+  ball.vx = direction * ball.speed * Math.cos(angle45);
+  ball.vy = ball.speed * Math.sin(angle45);
+
+  ball.speed += 0.5;
+
+  console.log("User hit detected");
+  
+
+  console.log(ball.x + ball.radius < canvas.width/2)
+}
+
+if (hitDetectionComputer(ball, computer)) {
+  let hitPoint = ball.y - player.y + player.height/2;
+
+  hitPoint = hitPoint / player.height/2;
+
+  let angle45 = Math.PI/4 * hitPoint;
+
+  let direction = ball.x + ball.radius < canvas.width/2 ? 1 : -1;
+
+  ball.vx = direction * ball.speed * Math.cos(angle45);
+  ball.vy = ball.speed * Math.sin(angle45);
+
+  ball.speed += 0.5;
+
+  console.log("Computer hit detected");
+  
+}
+
+if (computer.score > 0) {
+  console.log('The computer scored!') 
+} else if (user.score > 0) {
+  console.log('You scored!')
+}
+
+if (ball.x - ball.radius < 0) {
+  computer.score++;
+  resetBall();
+} else if (ball.x + ball.radius > canvas.width) {
+  user.score++;
+  resetBall();
+}
+
+}
+
 canvas.addEventListener('mouseover', function() {
   raf = window.requestAnimationFrame(draw);
 });
